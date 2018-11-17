@@ -27,7 +27,7 @@ def _judge(filename, stdin, stdout, timeout):
     start = time.time()
     try:
         if subprocess.run(os.path.join('.', filename), input=stdin.encode(), capture_output=True,
-                          timeout=timeout, check=True).stdout.decode() == stdout:
+                          timeout=timeout, check=True).stdout.decode().rstrip() == stdout.rstrip():
             return 'AC', time.time() - start
         return 'WA', time.time() - start
     except (subprocess.TimeoutExpired, ValueError):
