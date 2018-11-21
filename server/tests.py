@@ -36,11 +36,11 @@ class ProductTestCase(unittest.TestCase):
 
     def test_server(self):
         threading.Thread(target=main, kwargs={'port': PORT, 'quiet': True}, daemon=True).start()
-        # time.sleep(.1)
+        time.sleep(.1)
         self.assertEqual(xmlrpc.client.ServerProxy('http://127.0.0.1:' + str(PORT)).judge('#include <cstdio>\nint main() {\n    int a, b;\n    scanf("%d %d", &a, &b);\n    printf("%d", a / b);\n    return 0;\n}\n', [('1 1', '1')])[0], ['AC'])
 
     def test_with_PyLint(self):
-        pylint = subprocess.run(['pylint', '-sn', '.'], capture_output=True).stdout.decode()
+        pylint = subprocess.run(['pylint', '-sn', '.'], stdout=subprocess.PIPE).stdout.decode()
         self.assertFalse(pylint, '\n' + pylint)
 
 

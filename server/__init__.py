@@ -26,7 +26,7 @@ def _judge(filename, stdin, stdout, timeout):
     "Run './filename' with the input data and check if its output is the same as the given"
     start = time.time()
     try:
-        if subprocess.run(os.path.join('.', filename), input=stdin.encode(), capture_output=True,
+        if subprocess.run(os.path.join('.', filename), input=stdin.encode(), stdout=subprocess.PIPE,
                           timeout=timeout, check=True).stdout.decode().rstrip() == stdout.rstrip():
             return 'AC', time.time() - start
         return 'WA', time.time() - start
@@ -44,7 +44,11 @@ def judge(source, data, timeout=1, quiet=False):
     with open(str(md5) + '.cpp', 'w') as file:
         file.write(source)
     try:
-        subprocess.run(['g++', str(md5) + '.cpp', '-o', str(md5)], capture_output=quiet, check=True)
+        if quiet:
+            subprocess.run(['g++', str(md5) + '.cpp', '-o', str(md5)],
+                           stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+        else:
+            subprocess.run(['g++', str(md5) + '.cpp', '-o', str(md5)], check=True)
     except subprocess.CalledProcessError:
         return 'CE'
     # finally:
@@ -73,16 +77,17 @@ class Server(socketserver.ThreadingMixIn, xmlrpc.server.SimpleXMLRPCServer):
 
 def main(port=8000, address='', quiet=False):
     'if __name__ == __main__'
-    with Server((address, port), xmlrpc.server.SimpleXMLRPCRequestHandler, not quiet) as server:
-        server.register_function(judge)
+    server = Server((address, port), xmlrpc.server.SimpleXMLRPCRequestHandler, not quiet)
+    server.register_function(judge)
+    if not quiet:
+        print('Serving XML-RPC on', address or 'localhost', 'port', port)
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        print()
         if not quiet:
-            print('Serving XML-RPC on', address or 'localhost', 'port', port)
-        try:
-            server.serve_forever()
-        except KeyboardInterrupt:
-            print()
-            if not quiet:
-                print("Keyboard interrupt received, exiting.")
+            print("Keyboard interrupt received, exiting.")
+        server.server_close()
 
 
 if __name__ == '__main__':
