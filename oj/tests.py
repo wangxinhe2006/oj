@@ -1,4 +1,4 @@
-from __init__ import judge, main
+from server import judge, main
 import threading
 import time
 import subprocess
@@ -12,7 +12,7 @@ PORT = 8000
 
 class ProductTestCase(unittest.TestCase):
     def test_CE(self):
-        self.assertEqual(judge('', [], 0, True), 'CE')
+        self.assertEqual(judge('', [], 0), 'CE')
 
     def test_AC(self):
         self.assertEqual(judge('#include <cstdio>\nint main() {\n    int a, b;\n    scanf("%d %d", &a, &b);\n    printf("%d", a / b);\n    return 0;\n}\n', [('1 1', '1')])[0], ['AC'])
@@ -39,8 +39,8 @@ class ProductTestCase(unittest.TestCase):
         time.sleep(.1)
         self.assertEqual(xmlrpc.client.ServerProxy('http://127.0.0.1:' + str(PORT)).judge('#include <cstdio>\nint main() {\n    int a, b;\n    scanf("%d %d", &a, &b);\n    printf("%d", a / b);\n    return 0;\n}\n', [('1 1', '1')])[0], ['AC'])
 
-    def test_with_PyLint(self):
-        pylint = subprocess.run(['pylint', '-sn', '.'], stdout=subprocess.PIPE).stdout.decode()
+    def test_with_pylint(self):
+        pylint = subprocess.run(['pylint', '-sn', 'server'], stdout=subprocess.PIPE).stdout.decode()
         self.assertFalse(pylint, '\n' + pylint)
 
 

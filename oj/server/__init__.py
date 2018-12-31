@@ -36,7 +36,7 @@ def _judge(filename, stdin, stdout, timeout):
         return 'RE', time.time() - start
 
 
-def judge(source, data, timeout=1, quiet=False):
+def judge(source, data, timeout=1):
     "Compile the source file and call '_judge' with input and output data of each test point"
     assert timeout <= 60, 'Time limit exceeded'
     md5 = hashlib.md5(source.encode()).hexdigest()
@@ -44,15 +44,12 @@ def judge(source, data, timeout=1, quiet=False):
     with open(str(md5) + '.cpp', 'w') as file:
         file.write(source)
     try:
-        if quiet:
-            subprocess.run(['g++', str(md5) + '.cpp', '-o', str(md5)],
-                           stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
-        else:
-            subprocess.run(['g++', str(md5) + '.cpp', '-o', str(md5)], check=True)
+        subprocess.run(['g++', str(md5) + '.cpp', '-o', str(md5)],
+                       stderr=subprocess.PIPE, check=True)
     except subprocess.CalledProcessError:
         return 'CE'
-    # finally:
-    #     os.remove(str(md5) + '.cpp')
+    finally:
+        os.remove(str(md5) + '.cpp')
     threads = []
     for stdin, stdout in data:
         threads.append(Thread(target=_judge, args=(str(md5), stdin, stdout, timeout)))
