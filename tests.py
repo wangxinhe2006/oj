@@ -40,7 +40,7 @@ class ProductTestCase(unittest.TestCase):
         self.assertEqual(xmlrpc.client.ServerProxy('http://127.0.0.1:' + str(PORT)).judge('#include <cstdio>\nint main() {\n    int a, b;\n    scanf("%d %d", &a, &b);\n    printf("%d", a / b);\n    return 0;\n}\n', [('1 1', '1')])[0], ['AC'])
 
     def test_with_pylint(self):
-        pylint = subprocess.run(['pylint', '-sn', 'server'], stdout=subprocess.PIPE).stdout.decode()
+        pylint = subprocess.run(['pylint', '-sn', 'oj.server'], stdout=subprocess.PIPE).stdout.decode()
         self.assertFalse(pylint, '\n' + pylint)
 
 
