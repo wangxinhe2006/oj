@@ -1,4 +1,4 @@
-from server import judge, main
+from oj.server import judge, main
 import threading
 import time
 import subprocess
